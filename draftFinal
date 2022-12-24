@@ -1,8 +1,11 @@
 let asteroids=[]
+let peluru=[]
 let musuhImg;
+let stage=1
 function preload(){
   musuhImg=loadImage("R.png")
 }
+
 function setup() {
   createCanvas(400,400)
   map1=new Mapp(0,0)
@@ -20,66 +23,78 @@ function draw() {
   player.move()
   rectMode(CENTER)
   player.showPeluru()
-  //entitas.attack();
   musuh.show()
   player.kena()
   musuh.addMusuh();
-  level.getCurentLevel();
-  player.setsaveScore(score);
   
   text ("Lvl " + level.getCurentLevel(), 15, 15);
-  text ("Score " + player.getsaveScore(score), 15, 20);
+  text ("Score " + player.getsaveScore(), 15, 27);
   
+  if(level.getCurentLevel()==player.getsaveScore()/20 &&player.getsaveScore()!=0){
+  level.currentLevel+=1
+  }
 }
+function keyPressed(){
+  //space
+  if(keyCode==32&&stage==1){
+    player.attack()
+    //reload game if gameover
+  }else if(keyCode==RETURN&&stage==2){
+    map1.init()
+  }
+}
+
 //segala class
-class Entity {
-  constructor (x,y, h, w){
-    this.x = x;
-    this.y = y ;
-    this.height = h;
-    this.width = w;
-
+class entity{
+  constructor(x,y,h,w,speed){
+    this.x=x
+    this.y=y
+    this.h=h
+    this.w=w
+    this.kecepatan=speed
   }
+  //selama attack di panggil akan menambah peluru hero ke stack
   attack(){
-    if(mousePressed){
-    let bullet={
-      x:mouseX,
-      y:heigth
+    let p={
+      x:this.x,
+      y:this.y
+    }
+    peluru.push(p)
+  }
+  //cek left arrow jika di press hero bergerak ke kiri
+ move(){
+    if(keyIsDown(LEFT_ARROW)&&stage==1){
+      if(this.x>0){
+        this.x-=2;
       }
-    bullets.push(bullet)
-  }}
-
-  moveRight(){
-    if(this.x < 600){    
-      this.x += 3;
+    }
+    if(keyIsDown(RIGHT_ARROW)&&stage==1){
+        if(this.x<390){
+          this.x+=2
+        }
+    }
+    if(keyIsDown(UP_ARROW)&&stage==1){
+      if(this.y>0){
+        this.y-=2
+      }
+    }
+    if(keyIsDown(DOWN_ARROW)&&stage==1){
+      if(this.y<390){
+      this.y+=2
+      }
     }
   }
-  moveLeft(){
-    if(this.x > 0){
-      this.x -= 3;
-    }
-  }
-  moveDown(){
-    if(this.y < 400){
-      this.y += 3;
-    }
-  }
-  moveUp(){
-    if(this.y > 0){
-      this.y -= 3;
-    }
-  }
-
 }
-class Hero extends Entity{
+
+class Hero extends entity{
   constructor(ukuran, x, y, warna, speed) {
-    super(x, y);
+    super(x, y,0,0,speed);
     this.warna=warna;
     this.kecepatan=speed;
     this.ukuran=ukuran;
     this.life = 100;
     this.score = 0;
-    
+    this.recordScore=0
   }
   
   show(){
@@ -92,6 +107,7 @@ class Hero extends Entity{
   this.score+=1
   }
   calculateLife(){
+    this.life = 100;
   }
 
   setsaveScore(score){
@@ -101,77 +117,84 @@ class Hero extends Entity{
     return this.score;
   }
   
-  }
-
-}
-
-class Peluru extends Hero{
-  constructor(ukuran, x, y, warna, speed){
-    super( x, y );
-    this.warna=warna;
-    this.kecepatan=speed;
-    this.ukuran=ukuran;
-    
-  }
-  show(){
-     fill(this.warna);
+  showPeluru(){
+     fill(0);
      noStroke()
-     for (let bullet of bullets){
-     circle(bullet.x,bullet.y,this.ukuran)
-     bullet.y -= this.kecepatan;
+     for (let bullet of peluru){
+       circle(bullet.x,bullet.y,5)
+       bullet.y -= this.kecepatan;
        
      }
   }
+  
+  kena(){
+    for(let asteroid of asteroids){
+      for(let bullet of peluru){
+        if(dist (asteroid.x,asteroid.y,bullet.x,bullet.y)<40){
+          asteroids.splice(asteroids.indexOf(asteroid),1)
+          peluru.splice(peluru.indexOf(bullet),1)
+          this.score+=1
+        }
+      }
+    }
+  }
+
 }
 
 
-class Monster extends Entity{
+class Monster extends entity{
   //asteroidnya
-  constructor(x, y, w, h) {
-    super(x, y, w, h);
-    let asteroid = [];
-    this.life;
-    this.color;
-    this.effect;
-    this.type;
+  constructor(x, y, w, h,speed) {
+    super(x, y, w, h,speed);
+    this.life=100
+    this.effect+=3
+    this.type=0
 
   }
 
   setup(){
+    for(let i =0;i<random(1,10);i++){
     let asteroid={
-      x:random(0,width),
-      y:random(-800,0)
+      x:random(10,width-40),
+      y:random(-400,0)
     }
-     asteroids.push(asteroid)
-  } 
+     asteroids.push(asteroid)  
+    }
+  }
+  
+  addMusuh(){
+    if(asteroids.length<=0){
+      this.setup()
+    }
+  }
 
 show(){
-  fill(this.warna);
+  fill(0);
   noStroke()
   for(let asteroid of asteroids){
-    rect(asteroid.x,asteroid.y,this.ukuran) 
+    image(musuhImg,asteroid.x,asteroid.y,40,40) 
     asteroid.y += this.kecepatan
-    if(asteroid.y>heigth){
+    if(asteroid.y>height){
+      if(player.recordScore<player.score){
+        player.recordScore=player.score  
+      }
       color(255,255,255)
-      text("You lose!",heigth-175,width/2)
-      noLoop()
+      text("You lose!",height-225,width/2)
+      text("Record ",height-235,width-225)
+      text(player.recordScore,height-175,width-225)
+      this.kecepatan=0
+      player.kecepatan=0
+      stage=2
     }
   }
 }
-  moveRandom(){
-
-  }
-  saveScore(){
-
-  }
 }
-
 class Mapp{
   constructor(w,h){
     this.width= w;
     this.height= h;
   }
-   init(){
+  init(){
      for(let i=0;i<10;i++){
        asteroids.pop()
        peluru.pop()
@@ -184,13 +207,12 @@ class Mapp{
     player.kecepatan=10
     stage=1
   }
-  }
-  move(){}
 }
 
-
-class Level{
+class Level extends Hero{
   constructor() {
+    super();
+    //this.score = score;
     this.currentLevel = 0;
     this.latestLevel = 0;
     this.maxLevel = 0;
