@@ -7,6 +7,7 @@ function preload(){
 // let height = 350;
 function setup() {
   createCanvas(400,400)
+  map1=new Mapp(0,0)
   player= new Hero(20, 200, 360,color(700,0,0),0);
   musuh= new Monster(mouseX,350,height,1);
   musuh.setup()
@@ -168,22 +169,24 @@ show(){
   }
 }
 
-class Map{
+class Mapp{
   constructor(w,h){
     this.width= w;
     this.height= h;
   }
-  init(){
-    for(let asteroid of asteroids){
-      for(let bullet of bullets){
-        if(dist (asteroid.x,asteroid.y,bullet.x,bullet.y)<10){
-          asteroids.splice(asteroids.indexOf(asteroid),1)
-          bullets.splice(bullets.indexOf(bullet),1)
-          this.setup()
-          score+=1
-        }
-      }
-    }  
+   init(){
+     for(let i=0;i<10;i++){
+       asteroids.pop()
+       peluru.pop()
+     }
+    level.currentLevel = 1;
+    player.score=0
+    player.x=200
+    player.y=370
+    musuh.kecepatan=1
+    player.kecepatan=10
+    stage=1
+  }
   }
   move(){}
 }
