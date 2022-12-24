@@ -100,8 +100,10 @@ class Hero extends Entity{
   setsaveScore(score){
     this.score = score;
   }
+  getsaveScore(){
+    return this.score;
+  }
   
-
   }
 
 }
