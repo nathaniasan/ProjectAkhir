@@ -3,15 +3,12 @@ let musuhImg;
 function preload(){
   musuhImg=loadImage("R.png")
 }
-
-// let height = 350;
 function setup() {
   createCanvas(400,400)
   map1=new Mapp(0,0)
-  player= new Hero(20, 200, 360,color(700,0,0),0);
-  musuh= new Monster(mouseX,350,height,1);
+  player= new Hero(20, 200, 360,color(700,0,0),10);
+  musuh= new Monster(mouseX,350,height,1,1);
   musuh.setup()
-  
   level = new Level();
   level.setLevel(1);
   
