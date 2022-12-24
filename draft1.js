@@ -97,7 +97,10 @@ class Hero extends Entity{
   calculateLife(){
   }
 
-  saveScore(){
+  setsaveScore(score){
+    this.score = score;
+  }
+  
 
   }
 
