@@ -92,8 +92,7 @@ class Hero extends Entity{
   }
 
   increaseScore(){
-  score = this.score;
-  score+=1;
+  this.score+=1
   }
   calculateLife(){
   }
