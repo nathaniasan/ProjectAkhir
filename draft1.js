@@ -1,38 +1,38 @@
-let level, pemain;
-let bullets=[]
+
 let asteroids=[]
-let m;
+let musuhImg;
+function preload(){
+  musuhImg=loadImage("R.png")
+}
+
+// let height = 350;
 function setup() {
   createCanvas(400,400)
   player= new Hero(20, 200, 360,color(700,0,0),0);
-  peluru= new Peluru(10,mouseX,360,color(255,255,255),10);
+  musuh= new Monster(mouseX,350,height,1);
+  musuh.setup()
   
-  // for(let i=0;i<10;i++){
-  //   musuh.setup()  
-  // }
-  // hancur=new Map();
+  level = new Level();
+  level.setLevel(1);
+  
 }
 
 function draw() {
-  background(00);
+  background(0);
   player.show();
+  player.move()
   rectMode(CENTER)
-
-  
+  player.showPeluru()
   //entitas.attack();
-  if (keyIsDown(UP_ARROW)) {
-    player.moveUp();
-  }
-  if (keyIsDown(DOWN_ARROW)) {
-    player.moveDown();
-  }
-  if (keyIsDown(LEFT_ARROW)) {
-    player.moveLeft();
-  }
-  if (keyIsDown(RIGHT_ARROW)) {
-    player.moveRight();
-  }
-  //hancur.init();
+  musuh.show()
+  player.kena()
+  musuh.addMusuh();
+  level.getCurentLevel();
+  player.setsaveScore(score);
+  
+  text ("Lvl " + level.getCurentLevel(), 15, 15);
+  text ("Score " + player.getsaveScore(score), 15, 20);
+  
 }
 //segala class
 class Entity {
